@@ -40,8 +40,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-#SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+#SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 DEBUG = os.getenv("DEBUG") == "True"
 
 
