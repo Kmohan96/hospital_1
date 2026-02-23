@@ -19,7 +19,29 @@ if len(JWT_SIGNING_KEY.encode('utf-8')) < 32:
         RuntimeWarning,
     )
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+#ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = ["*"]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    # "http://localhost:5173",
+    r"^https://.*\.vercel\.app$",
+]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGIN_REGEXES = [
+    # "http://localhost:5173",
+    r"^https://.*\.vercel\.app$",
+]
+
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG") == "True"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -66,44 +88,59 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hospital_backend.wsgi.application'
 ASGI_APPLICATION = 'hospital_backend.asgi.application'
 
-# if os.getenv('USE_SQLITE', 'False') == 'True':
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
+
+
+
+
+
+#local
+# DATABASES = {
+# 'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': "db_hospital",
+#         'USER': 'root',
+#         'PASSWORD': 'mysql',
+#         'HOST': "127.0.0.1",
+#         'PORT': "3306",
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
 #         }
 #     }
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.mysql',
-#             'NAME': os.getenv('MYSQL_DATABASE', 'hospital_db'),
-#             'USER': os.getenv('MYSQL_USER', 'root'),
-#             'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
-#             'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
-#             'PORT': os.getenv('MYSQL_PORT', '3306'),
-#             'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
-#         }
-#     }
+# }
+#local
 
 
 
+#aiven_original
 
+import os
+
+SSL_CA = os.getenv("MYSQL_SSL_CA")
+
+ssl_ca_path = None
+
+if SSL_CA:
+    ssl_ca_path = BASE_DIR / "mysql-ca.pem"
+    with open(ssl_ca_path, "w") as f:
+        f.write(SSL_CA.replace("\\n", "\n"))
 
 DATABASES = {
-'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "db_hospital",
-        'USER': 'root',
-        'PASSWORD': 'mysql',
-        'HOST': "127.0.0.1",
-        'PORT': "3306",
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': (
+            {'ssl': {'ca': ssl_ca_path}}
+            if ssl_ca_path else
+            {'ssl': False}
+        ),
     }
 }
+#aiven_original
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -124,7 +161,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.User'
 
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
+#CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
